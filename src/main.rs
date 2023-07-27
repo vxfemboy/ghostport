@@ -1,20 +1,36 @@
-use std::net::{TcpListener, TcpStream};
-use std::io::{Read, Write};
+use clap::Parser;
+use tokio::net::TcpListener;
 
-fn main() {
-    let listener = TcpListener::bind("0.0.0.0:22").unwrap();
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut stream) => {
-                let _ = stream.write_all(b"SSH-2.0-OpenSSH_7.2p2 Ubuntu-uwuntu\r\n");
-                let _ = stream.flush();
-                let mut buffer = [0; 1024];
-                let _ = stream.read(&mut buffer);
-                // log the connection and any commands sent by the attacker
-            },
-            Err(e) => {
-                eprintln!("Error accepting connection: {}", e);
+use cli::Cli;
+
+mod cli;
+mod config;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Parse cli & read config
+    let cli = Cli::parse();
+    let config = config::read(&cli.config)?;
+
+    // Bind listener
+    let listener = TcpListener::bind("127.0.0.1:8888").await?;
+
+    loop {
+        // Accept connection
+        let (stream, _) = listener.accept().await?;
+        let config = config.clone();
+
+        // Spawn async thread
+        tokio::spawn(async move {
+            // Go through payload line by line
+            for line in config.payloads {
+                // Format payload & write it
+                let payload = format!("{}\r\n", line);
+                match stream.try_write(payload.as_bytes()) {
+                    Ok(n) => n,
+                    Err(_) => return,
+                };
             }
-        }
+        });
     }
 }
