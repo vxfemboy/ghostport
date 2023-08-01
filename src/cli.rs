@@ -5,11 +5,11 @@ use clap::Parser;
 // CLI flags/arguments
 pub struct Cli {
     #[arg(
-        short = 'c',
-        long = "config",
+        short = 's',
+        long = "signatures",
         value_name = "FILE",
-        help = "Path to the config",
-        default_value = "~/.config/ghostport/config.toml"
+        help = "Path to the signatures",
+        default_value = "signatures"
     )]
-    pub config: String,
+    pub signatures: String,
 }
