@@ -16,6 +16,7 @@ async fn main() -> anyhow::Result<()> {
         .with_max_level(Level::DEBUG)
         .init();
 
+
     // Parse CLI
     let cli = Cli::parse();
     debug!("Parsed CLI flags");
@@ -24,13 +25,20 @@ async fn main() -> anyhow::Result<()> {
     debug!("Read signatures file");
 
     // Bind listener
-    let listener = TcpListener::bind("127.0.0.1:8888").await?;
+    let listener = TcpListener::bind(&cli.listen).await?;
     info!("Started listener");
 
     loop {
         // Accept connection
         let (stream, address) = listener.accept().await?;
-        debug!("Accepted connection");
+        if cli.debug {
+            debug!("Accepted connection from {}", address);
+        } else if cli.verbose {
+            info!("Accepted connection from {}", address);
+        } else if cli.quiet {
+
+        }
+        //debug!("Accepted connection");
         // Clone signatures
         let sigs = signatures.clone();
 
@@ -42,7 +50,14 @@ async fn main() -> anyhow::Result<()> {
             // Write signature
             match stream.try_write(signature.expect("could not send signature").as_bytes()) {
                 Ok(n) => {
-                    debug!("Sent signature {:?} to {}", signature, address);
+                    if cli.debug {
+                        debug!("Sent signature {:?} to {}", signature, address);
+                    } else if cli.verbose {
+                        info!("Sent signature {:?} to {}", signature, address);
+                    } else if cli.quiet {
+                        return;
+                    }
+                    //debug!("Sent signature {:?} to {}", signature, address);
                     n
                 }
                 Err(_) => return,
