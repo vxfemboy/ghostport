@@ -3,6 +3,7 @@ use rand::seq::SliceRandom;
 use tokio::net::TcpListener;
 use tokio::io::AsyncWriteExt;
 use tracing::{debug, error, info, Level};
+use tracing_subscriber::FmtSubscriber;
 
 mod cli;
 mod handler;
@@ -12,14 +13,24 @@ use handler::{generate_payload, parse_signatures};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Setup logger
-    tracing_subscriber::fmt()
-        .without_time()
-        .with_max_level(Level::DEBUG)
-        .init();
-
     // Parse CLI
     let cli = Cli::parse();
+
+    // Setup logger
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(if cli.debug {
+            Level::DEBUG
+        } else if cli.verbose {
+            Level::INFO
+        } else {
+            Level::ERROR
+        })
+        .without_time()
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("setting default subscriber failed");
+
     debug!("Parsed CLI flags");
 
     // Read signatures file
@@ -30,7 +41,7 @@ async fn main() -> anyhow::Result<()> {
             return Err(e);
         }
     };
-    //debug!("Read {} signatures", signatures.len());
+    debug!("Read {} signatures", signatures.len());
 
     let listener = TcpListener::bind(&cli.listen).await?;
     info!("Started listener on {}", cli.listen);
@@ -38,11 +49,7 @@ async fn main() -> anyhow::Result<()> {
     loop {
         // Accept connection
         let (mut stream, address) = listener.accept().await?;
-        if cli.debug {
-            debug!("Accepted connection from {}", address);
-        } else if cli.verbose {
-            info!("Accepted connection from {}", address);
-        }
+        debug!("Accepted connection from {}", address);
 
         let sigs = signatures.clone();
         let cli_clone = cli.clone();
@@ -58,14 +65,13 @@ async fn main() -> anyhow::Result<()> {
                 // Write payload
                 match stream.write_all(&payload).await {
                     Ok(()) => {
-                        if cli_clone.debug {
-                            debug!(
-                                "Sent payload to {}: {:?} ({} bytes)",
-                                address,
-                                String::from_utf8_lossy(&payload),
-                                payload.len()
-                            );
-                        } else if cli_clone.verbose {
+                        debug!(
+                            "Sent payload to {}: {:?} ({} bytes)",
+                            address,
+                            String::from_utf8_lossy(&payload),
+                            payload.len()
+                        );
+                        if cli_clone.verbose {
                             info!("Sent payload ({} bytes) to {}", payload.len(), address);
                         }
                     }
