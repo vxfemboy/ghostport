@@ -16,7 +16,7 @@ Ghostport is a sophisticated port spoofing tool designed to confuse and mislead 
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/ghostport.git
+git clone https://github.com/vxfemboy/ghostport.git
 cd ghostport
 cargo build --release
 ```
@@ -31,7 +31,7 @@ Basic usage:
 
 or you can run with cargo 
 ```bash
-git clone https://git.suicidal.network/sad/ghostport.git
+git clone https://github.com/vxfemboy/ghostport.git
 cd ghostport 
 cargo run -- -s signatures.txt
 ```
