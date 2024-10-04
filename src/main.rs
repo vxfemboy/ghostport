@@ -1,12 +1,14 @@
 use clap::Parser;
 use rand::seq::SliceRandom;
 use tokio::net::TcpListener;
-use tracing::{debug, info, Level};
-
-use cli::Cli;
+use tracing::{debug, error, info, Level};
 
 mod cli;
 mod config;
+mod handler;
+
+use cli::Cli;
+use handler::{generate_payload, parse_signatures, Signature};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -16,17 +18,23 @@ async fn main() -> anyhow::Result<()> {
         .with_max_level(Level::DEBUG)
         .init();
 
-
     // Parse CLI
     let cli = Cli::parse();
     debug!("Parsed CLI flags");
+
     // Read signatures file
-    let signatures = config::read_signatures(&cli.signatures)?;
-    debug!("Read signatures file");
+    let signatures = match parse_signatures(&cli.signatures) {
+        Ok(sigs) => sigs,
+        Err(e) => {
+            error!("Failed to parse signatures file: {}", e);
+            return Err(e);
+        }
+    };
+    debug!("Read {} signatures", signatures.len());
 
     // Bind listener
     let listener = TcpListener::bind(&cli.listen).await?;
-    info!("Started listener");
+    info!("Started listener on {}", cli.listen);
 
     loop {
         // Accept connection
@@ -35,10 +43,8 @@ async fn main() -> anyhow::Result<()> {
             debug!("Accepted connection from {}", address);
         } else if cli.verbose {
             info!("Accepted connection from {}", address);
-        } else if cli.quiet {
-
         }
-        //debug!("Accepted connection");
+
         // Clone signatures
         let sigs = signatures.clone();
 
@@ -47,21 +53,28 @@ async fn main() -> anyhow::Result<()> {
             // Choose random signature
             let signature = sigs.choose(&mut rand::thread_rng());
 
-            // Write signature
-            match stream.try_write(signature.expect("could not send signature").as_bytes()) {
-                Ok(n) => {
-                    if cli.debug {
-                        debug!("Sent signature {:?} to {}", signature, address);
-                    } else if cli.verbose {
-                        info!("Sent signature {:?} to {}", signature, address);
-                    } else if cli.quiet {
-                        return;
-                    }
-                    //debug!("Sent signature {:?} to {}", signature, address);
-                    n
+            if let Some(sig) = signature {
+                // Generate payload
+                let payload = generate_payload(sig);
+
+                // Write payload
+                if let Err(e) = stream.try_write(&payload) {
+                    error!("Failed to write payload to {}: {}", address, e);
+                    return;
                 }
-                Err(_) => return,
-            };
+
+                if cli.debug {
+                    debug!(
+                        "Sent payload to {}: {:?}",
+                        address,
+                        String::from_utf8_lossy(&payload)
+                    );
+                } else if cli.verbose {
+                    info!("Sent payload to {}", address);
+                }
+            } else {
+                debug!("No signature available");
+            }
         });
     }
 }

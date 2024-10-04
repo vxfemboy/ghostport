@@ -22,31 +22,15 @@ pub struct Cli {
     )]
     pub listen: String,
 
-    #[arg(
-        short = 'd',
-        long = "debug",
-        help = "Enable debug logging"
-    )]
+    #[arg(short = 'd', long = "debug", help = "Enable debug logging")]
     pub debug: bool,
 
-    #[arg(
-        short = 'v',
-        long = "verbose",
-        help = "Enable verbose logging"
-    )]
+    #[arg(short = 'v', long = "verbose", help = "Enable verbose logging")]
     pub verbose: bool,
 
-    #[arg(
-        short = 'q',
-        long = "quiet",
-        help = "Enable quiet logging"
-    )]
+    #[arg(short = 'q', long = "quiet", help = "Enable quiet logging")]
     pub quiet: bool,
 
-    #[arg(
-        short = 'V',
-        long = "version",
-        help = "Print version information"
-    )]
+    #[arg(short = 'V', long = "version", help = "Print version information")]
     pub version: bool,
 }

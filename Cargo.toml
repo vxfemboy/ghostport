@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1.0.72"
 clap = { version = "4.3.19", features = ["derive"] }
 rand = "0.8.5"
+regex = "1.11.0"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
