@@ -4,11 +4,10 @@ use tokio::net::TcpListener;
 use tracing::{debug, error, info, Level};
 
 mod cli;
-mod config;
 mod handler;
 
 use cli::Cli;
-use handler::{generate_payload, parse_signatures, Signature};
+use handler::{generate_payload, parse_signatures};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
