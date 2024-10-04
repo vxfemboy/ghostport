@@ -1,6 +1,9 @@
+[![Rust](https://github.com/vxfemboy/ghostport/actions/workflows/rust.yml/badge.svg)](https://github.com/vxfemboy/ghostport/actions/workflows/rust.yml)
 # Ghostport
 
 Ghostport is a sophisticated port spoofing tool designed to confuse and mislead port scanners. It's a Rust implementation inspired by the concept of portspoof, offering enhanced performance and flexibility.
+
+![Ghostport Demo](/contrib/ghostport_demo.gif)
 
 ## Features
 
@@ -49,13 +52,13 @@ This will start Ghostport on the default address (127.0.0.1:8888) using the sign
 Run with custom address and verbose logging:
 
 ```bash
-./target/release/ghostport -s signatures.txt -l 0.0.0.0:8888 -v
+./target/release/ghostport -s signatures.txt -l 0.0.0.0:8888 -d
 ```
 
 Run with debug logging:
 
 ```bash
-./target/release/ghostport -s signatures.txt -d
+./target/release/ghostport -s signatures.txt -l 0.0.0.0:8888 -d
 ```
 
 ## Signature File Format
