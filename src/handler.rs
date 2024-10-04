@@ -44,27 +44,23 @@ pub fn parse_signatures(file_path: &str) -> Result<Vec<Signature>> {
 
 fn unescape_string(s: &str) -> Result<Vec<u8>> {
     let mut result = Vec::new();
-    let mut chars = s.chars();
+    let mut chars = s.chars().peekable();
 
     while let Some(c) = chars.next() {
         if c == '\\' {
             match chars.next() {
                 Some('x') => {
-                    let hex = chars.next().and_then(|c1| {
-                        chars.next().map(|c2| format!("{}{}", c1, c2))
-                    }).unwrap_or_else(|| {
-                        result.push(b'\\');
-                        result.push(b'x');
-                        String::new()
-                    });
-                    if !hex.is_empty() {
+                    let hex: String = chars.by_ref().take(2).collect();
+                    if hex.len() == 2 {
                         if let Ok(byte) = u8::from_str_radix(&hex, 16) {
                             result.push(byte);
                         } else {
-                            result.push(b'\\');
-                            result.push(b'x');
+                            result.extend(b"\\x");
                             result.extend(hex.bytes());
                         }
+                    } else {
+                        result.extend(b"\\x");
+                        result.extend(hex.bytes());
                     }
                 },
                 Some('0') => result.push(0),

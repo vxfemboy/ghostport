@@ -1,7 +1,8 @@
 use clap::Parser;
 
-#[derive(Parser, Debug)]
-#[command(author = "perp")]
+#[derive(Parser, Debug, Clone)]
+#[command(author = "perp and sad")]
+
 // CLI flags/arguments
 pub struct Cli {
     #[arg(
