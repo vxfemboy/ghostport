@@ -52,7 +52,7 @@ This will start Ghostport on the default address (127.0.0.1:8888) using the sign
 Run with custom address and verbose logging:
 
 ```bash
-./target/release/ghostport -s signatures.txt -l 0.0.0.0:8888 -d
+./target/release/ghostport -s signatures.txt -l 0.0.0.0:8888 -v
 ```
 
 Run with debug logging:
