@@ -9,7 +9,7 @@ license = "GPL-3.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.103"
 clap = { version = "4.5.43", features = ["derive"] }
 rand = "0.9.3"
 regex = "1.12.2"
