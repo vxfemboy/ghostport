@@ -1,4 +1,4 @@
-[![Rust](https://github.com/vxfemboy/ghostport/actions/workflows/rust.yml/badge.svg)](https://github.com/vxfemboy/ghostport/actions/workflows/rust.yml)
+[![Rust](https://virus.ad/vxfemboy/ghostport/badges/workflows/rust.yml/badge.svg)](https://virus.ad/vxfemboy/ghostport/actions)
 # Ghostport
 
 Ghostport is a sophisticated port spoofing tool designed to confuse and mislead port scanners. It's a Rust implementation inspired by the concept of portspoof, offering enhanced performance and flexibility.
