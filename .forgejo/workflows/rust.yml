@@ -16,6 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+    # GitHub's ubuntu-latest ships a Rust toolchain preinstalled; the self-hosted
+    # act image (catthehacker/ubuntu:act-22.04) does not, so cargo/rustup were
+    # 'command not found' here. Install it explicitly rather than relying on the image.
+    - uses: dtolnay/rust-toolchain@stable
     - name: Build
       run: cargo build --verbose
     - name: Run tests
